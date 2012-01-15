@@ -1,5 +1,5 @@
 name:           snaplet-mongodb-minimalistic
-version:        0.0.1
+version:        0.0.2
 synopsis:       Minimalistic MongoDB Snaplet.
 description:    Minimalistic MongoDB Snaplet.
 license:        BSD3

@@ -1,9 +1,11 @@
+{-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE UndecidableInstances  #-}
 
 module Snap.Snaplet.MongoDB.Functions
-( eitherWithDB'
+( mongoDBInit
+, eitherWithDB'
 , eitherWithDB
 , maybeWithDB
 , maybeWithDB'
@@ -11,6 +13,7 @@ module Snap.Snaplet.MongoDB.Functions
 , unsafeWithDB'
 ) where
 
+import            Data.Text (Text)
 import            Control.Monad.Error
 
 import            Snap
@@ -18,6 +21,18 @@ import            Snap.Snaplet.MongoDB.Core
 
 import            Database.MongoDB
 import            System.IO.Pool
+
+------------------------------------------------------------------------------
+-- |
+description :: Text
+description = "Minimalistic MongoDB Snaplet"
+
+------------------------------------------------------------------------------
+-- |
+mongoDBInit :: Int -> Host -> Database -> SnapletInit app MongoDB
+mongoDBInit n h d = makeSnaplet "snaplet-mongodb" description Nothing $ do
+    pool <- liftIO $ newPool (Factory (connect h) close isClosed) n
+    return $ MongoDB pool d
 
 class (MonadIO m, MonadState app m, HasMongoDB app) => HasMongoDB' app m
 instance (MonadIO m, MonadState app m, HasMongoDB app) => HasMongoDB' app m
@@ -60,3 +75,4 @@ eitherWithDB' mode action = do
     case ep of
          Left  err -> return $ Left $ ConnectionFailure err
          Right pip -> liftIO $ access pip mode database action
+         
