@@ -144,4 +144,4 @@ We will follow the common Snap project structure.
         addRoutes routes
         return $ App h d
 
-    And that's it.
+And that's it.
