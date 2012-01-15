@@ -1,17 +1,17 @@
 # About
 
-`snaplet-mongodb-minimalistic' is minimal implementation of Snaplet for MongoDB.
+`snaplet-mongodb-minimalistic` is minimal implementation of Snaplet for MongoDB.
 
 The package follows the [Snaplet Design](http://snapframework.com/docs/tutorials/snaplets-design).
 
 The package itself is divided into two parts:
 
-  1. `Snap.Snaplet.MongoDB.Core'
-  2. `Snap.Snaplet.MongoDB.Functions'
+  1. `Snap.Snaplet.MongoDB.Core`
+  2. `Snap.Snaplet.MongoDB.Functions`
 
-The `Core' package contains the Snaplet's data type (`MongoDB') and typeclass (`HasMongoDB').
+The `Core` package contains the Snaplet's data type (`MongoDB`) and typeclass (`HasMongoDB`).
 
-The `Functions' package contains the basic functions (initializers and functions for querying the database).
+The `Functions` package contains the basic functions (initializers and functions for querying the database).
 
 # Examples
 
