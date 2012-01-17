@@ -35,7 +35,7 @@ We will follow the common Snap project structure.
     import Snap.Snaplet.MongoDB.Core
 
     import Control.Category
-    import Prelude hiding ((.))
+    import Prelude hiding ((.)) -- The (.) is used in getMongoDB definition.
 
     data App = App
         { _heist :: Snaplet (Heist App)

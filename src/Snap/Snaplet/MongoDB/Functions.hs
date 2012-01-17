@@ -37,8 +37,9 @@ description = "Minimalistic MongoDB Snaplet."
 -- @
 -- app :: SnapletInit App App
 -- app = makeSnaplet "app" "An snaplet example application." Nothing $ do
+--     h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
 --     d <- nestSnaplet "database" database $ mongoDBInit 10 (host "127.0.0.1") "Snaplet-MongoDB"
---     return $ App d
+--     return $ App h d
 -- @
 mongoDBInit :: Int -> Host -> Database -> SnapletInit app MongoDB
 mongoDBInit n h d = makeSnaplet "snaplet-mongodb" description Nothing $ do

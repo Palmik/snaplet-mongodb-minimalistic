@@ -29,6 +29,8 @@ data MongoDB = MongoDB
 -- instance HasMongoDB App where
 --     getMongoDB = getL (snapletValue . database)
 -- @
+--
+-- Note: The (.) is from Control.Category.
 class HasMongoDB app where
     getMongoDB :: app -> MongoDB
     
