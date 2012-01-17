@@ -4,8 +4,12 @@
 {-# LANGUAGE UndecidableInstances  #-}
 
 module Snap.Snaplet.MongoDB.Functions.M
-( eitherWithDB
-, eitherWithDB'
+( eitherWithDB'
+, eitherWithDB
+, maybeWithDB
+, maybeWithDB'
+, unsafeWithDB
+, unsafeWithDB'
 ) where 
 
 import           Data.Text (Text)
