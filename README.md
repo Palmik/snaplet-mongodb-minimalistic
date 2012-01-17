@@ -8,8 +8,23 @@ The package itself is divided into two parts:
 
   1. `Snap.Snaplet.MongoDB.Core`
   2. `Snap.Snaplet.MongoDB.Functions`
+    1. `Snap.Snaplet.MongoDB.Functions.S`
+    2. `Snap.Snaplet.MongoDB.Functions.M`
 
-The `Core` package contains the Snaplet's data type (`MongoDB`) and typeclass (`HasMongoDB`).
+## Core
+
+The `Snap.Snaplet.MongoDB.Core` package contains:
+  * The Snaplet's data type (`MongoDB`).
+  * The type class (`HasMongoDB`).
+  * The initializer (`mongoDBInit`).
+
+The `MongoDB` data type instances hold connection pool and database name.
+
+The `HasMongoDB` type class is to be used when you inted to have only one database in your application, more on this later.
+
+## Functions
+
+As I have already said, 
 
 The `Functions` package contains the basic functions (initializers and functions for querying the database).
 

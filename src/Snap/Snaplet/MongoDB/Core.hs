@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings     #-}
+
 module Snap.Snaplet.MongoDB.Core
 ( MongoDB(..)
 , HasMongoDB(..)
