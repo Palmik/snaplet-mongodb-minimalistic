@@ -30,12 +30,13 @@ instance (MonadIO m, MonadState app m) => MonadState' app m
 
 ------------------------------------------------------------------------------
 -- | Database access function.
+--
 -- 1. argument: The snaplet (database) on which you want the action to be run.
 -- 2. argument: Action to perform. (Defaults to UnconfirmedWrites AccessMode)
 -- Returns: The action's result; in case of failure error is called.
 --
 -- Example:
--- > unsafeWithDB accountDB $ insert "test-collection" ["some_field" = " something" ]
+-- > unsafeWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
 unsafeWithDB :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> Action IO a -> m a
 unsafeWithDB snaplet = unsafeWithDB' snaplet UnconfirmedWrites
 
@@ -47,7 +48,7 @@ unsafeWithDB snaplet = unsafeWithDB' snaplet UnconfirmedWrites
 -- Returns: The action's result; in case of failure error is called.
 --
 -- Example:
--- > unsafeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = " something" ]
+-- > unsafeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
 unsafeWithDB' :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> AccessMode -> Action IO a -> m a
 unsafeWithDB' snaplet mode action = do
     res <- (eitherWithDB' snaplet mode action)
@@ -60,7 +61,7 @@ unsafeWithDB' snaplet mode action = do
 -- Returns: Nothing in case of failure or Just the rsult of the action.
 --
 -- Example:
--- > maybeWithDB accountDB $ insert "test-collection" ["some_field" = " something" ]
+-- > maybeWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
 maybeWithDB :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> Action IO a -> m (Maybe a)
 maybeWithDB snaplet = maybeWithDB' snaplet UnconfirmedWrites
 
@@ -72,7 +73,7 @@ maybeWithDB snaplet = maybeWithDB' snaplet UnconfirmedWrites
 -- Returns: Nothing in case of failure or Just the rsult of the action.
 --
 -- Example:
--- > maybeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = " something" ]
+-- > maybeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
 maybeWithDB' :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> AccessMode -> Action IO a -> m (Maybe a)
 maybeWithDB' snaplet mode action = do
     res <- (eitherWithDB' snaplet mode action)
@@ -85,7 +86,7 @@ maybeWithDB' snaplet mode action = do
 -- Returns: Either Failure or the action's result.
 --
 -- Example:
--- > eitherWithDB accountDB $ insert "test-collection" ["some_field" = " something" ]
+-- > eitherWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
 eitherWithDB :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> Action IO a -> m (Either Failure a)
 eitherWithDB snaplet = eitherWithDB' snaplet UnconfirmedWrites
 
@@ -97,7 +98,7 @@ eitherWithDB snaplet = eitherWithDB' snaplet UnconfirmedWrites
 -- Returns: Either Failure or the action's result.
 --
 -- Example:
--- > eitherWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = " something" ]
+-- > eitherWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
 eitherWithDB' :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> AccessMode -> Action IO a -> m (Either Failure a)
 eitherWithDB' snaplet mode action = do
     (MongoDB pool database) <- gets (getL ((C..) snapletValue snaplet))
