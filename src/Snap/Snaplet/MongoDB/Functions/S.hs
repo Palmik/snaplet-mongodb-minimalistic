@@ -1,18 +1,19 @@
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE UndecidableInstances  #-}
 
+------------------------------------------------------------------------------
+-- | In this module you can find variations of @withDB@ functions.
+--
+-- Functions from this module are to be used when you have single MongoDB snaplet in your application and your application is an instance of HasMongoDB.
+------------------------------------------------------------------------------
 module Snap.Snaplet.MongoDB.Functions.S
-( eitherWithDB'
-, eitherWithDB
+( eitherWithDB
+, eitherWithDB'
 , maybeWithDB
 , maybeWithDB'
 , unsafeWithDB
 , unsafeWithDB'
 ) where
 
-import           Data.Text (Text)
 import           Control.Monad.Error
 
 import           Snap
@@ -21,73 +22,52 @@ import           Snap.Snaplet.MongoDB.Core
 import           Database.MongoDB
 import           System.IO.Pool
 
-import qualified Control.Category as C ((.))
-
-------------------------------------------------------------------------------
--- | These classes are here just for convenience.
---
-class (MonadIO m, MonadState app m) => MonadState' app m
-instance (MonadIO m, MonadState app m) => MonadState' app m
-
-class (MonadState' app m, HasMongoDB app) => HasMongoDB' app m
-instance (MonadState' app m, HasMongoDB app) => HasMongoDB' app m
-
 ------------------------------------------------------------------------------
 -- | Database access function.
 --
--- 1. argument: Action to perform. (Defaults to UnconfirmedWrites AccessMode)
---
--- Returns: The action's result; in case of failure error is called.
---
--- Example:
+-- Usage:
 --
 -- > unsafeWithDB $ insert "test-collection" ["some_field" = "something" ]
-unsafeWithDB :: (HasMongoDB' app m) => Action IO a -> m a
+unsafeWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
+             => Action IO a         -- ^ 'Action' you want to perform.
+             -> m a                 -- ^ The action's result; in case of failure 'error' is called.
 unsafeWithDB = unsafeWithDB' UnconfirmedWrites
 
 ------------------------------------------------------------------------------
 -- | Database access function.
 --
--- 1. argument: AccessMode.
---
--- 2. argument: Action to perform.
---
--- Returns: The action's result; in case of failure error is called.
---
--- Example:
+-- Usage:
 --
 -- > unsafeWithDB' UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
-unsafeWithDB' :: (HasMongoDB' app m) => AccessMode -> Action IO a -> m a
+unsafeWithDB' :: (MonadIO m, MonadState app m, HasMongoDB app)
+              => AccessMode             -- ^ Access mode you want to use when performing the action.
+              -> Action IO a            -- ^ 'Action' you want to perform.
+              -> m a                    -- ^ The action's result; in case of failure 'error' is called.
 unsafeWithDB' mode action = do
     res <- (eitherWithDB' mode action)
-    return $ either (error . show) id res
+    either (error . show) return res
 
 ------------------------------------------------------------------------------
 -- | Database access function.
 --
--- 1. argument: Action to perform. (Defaults to UnconfirmedWrites AccessMode)
---
--- Returns: Nothing in case of failure or Just the rsult of the action.
---
--- Example:
+-- Usage:
 --
 -- > maybeWithDB $ insert "test-collection" ["some_field" = "something" ]
-maybeWithDB :: (HasMongoDB' app m) => Action IO a -> m (Maybe a)
+maybeWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
+            => Action IO a          -- ^ 'Action' you want to perform.
+            -> m (Maybe a)          -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
 maybeWithDB = maybeWithDB' UnconfirmedWrites
 
 ------------------------------------------------------------------------------
 -- | Database access function.
 --
--- 1. argument: AccessMode.
---
--- 2. argument: Action to perform.
---
--- Returns: Nothing in case of failure or Just the rsult of the action.
---
--- Example:
+-- Usage:
 --
 -- > maybeWithDB' UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
-maybeWithDB' :: (HasMongoDB' app m) => AccessMode -> Action IO a -> m (Maybe a)
+maybeWithDB' :: (MonadIO m, MonadState app m, HasMongoDB app)
+             => AccessMode          -- ^ Access mode you want to use when performing the action.
+             -> Action IO a         -- ^ 'Action' you want to perform.
+             -> m (Maybe a)         -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
 maybeWithDB' mode action = do
     res <- (eitherWithDB' mode action)
     return $ either (const Nothing) Just res
@@ -95,31 +75,26 @@ maybeWithDB' mode action = do
 ------------------------------------------------------------------------------
 -- | Database access function.
 --
--- 1. argument: Action to perform. (Defaults to UnconfirmedWrites AccessMode)
---
--- Returns: Either Failure or the action's result.
---
--- Example:
+-- Usage:
 --
 -- > eitherWithDB $ insert "test-collection" ["some_field" = "something" ]
-eitherWithDB :: (HasMongoDB' app m) => Action IO a -> m (Either Failure a)
+eitherWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
+             => Action IO a             -- ^ 'Action' you want to perform.
+             -> m (Either Failure a)    -- ^ 'Either' 'Failure' or the action's result.
 eitherWithDB = eitherWithDB' UnconfirmedWrites
 
 ------------------------------------------------------------------------------
 -- | Database access function.
 --
--- 1. argument: AccessMode.
---
--- 2. argument: Action to perform.
---
--- Returns: Either Failure or the action's result.
---
--- Example:
+-- Usage:
 --
 -- > eitherWithDB' UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
-eitherWithDB' :: (HasMongoDB' app m) => AccessMode -> Action IO a -> m (Either Failure a)
+eitherWithDB' :: (MonadIO m, MonadState app m, HasMongoDB app)
+              => AccessMode             -- ^ Access mode you want to use when performing the action.
+              -> Action IO a            -- ^ 'Action' you want to perform.
+              -> m (Either Failure a)   -- ^ 'Either' 'Failure' or the action's result.
 eitherWithDB' mode action = do
-    (MongoDB pool database) <- gets getMongoDB
+    (MongoDB pool database _) <- gets getMongoDB
     ep <- liftIO $ runErrorT $ aResource pool
     case ep of
          Left  err -> return $ Left $ ConnectionFailure err

@@ -1,18 +1,19 @@
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE UndecidableInstances  #-}
 
+------------------------------------------------------------------------------
+-- | In this module you can find variations of @withDB@ functions.
+--
+-- Functions from this module are to be used when you have multiple MongoDB snaplets (databases) in your application.
+------------------------------------------------------------------------------
 module Snap.Snaplet.MongoDB.Functions.M
-( eitherWithDB'
-, eitherWithDB
+( eitherWithDB
+, eitherWithDB'
 , maybeWithDB
 , maybeWithDB'
 , unsafeWithDB
 , unsafeWithDB'
 ) where 
 
-import           Data.Text (Text)
 import           Control.Monad.Error
 
 import           Snap
@@ -24,84 +25,84 @@ import           System.IO.Pool
 import qualified Control.Category as C ((.))
 
 ------------------------------------------------------------------------------
--- | These classes are here just for convenience.
-class (MonadIO m, MonadState app m) => MonadState' app m
-instance (MonadIO m, MonadState app m) => MonadState' app m
-
-------------------------------------------------------------------------------
 -- | Database access function.
 --
--- 1. argument: The snaplet (database) on which you want the action to be run.
--- 2. argument: Action to perform. (Defaults to UnconfirmedWrites AccessMode)
--- Returns: The action's result; in case of failure error is called.
---
 -- Example:
+--
 -- > unsafeWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
-unsafeWithDB :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> Action IO a -> m a
+unsafeWithDB :: (MonadIO m, MonadState app m)
+             => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
+             -> Action IO a                -- ^ 'Action' you want to perform.
+             -> m a                        -- ^ The action's result; in case of failure 'error' is called.
 unsafeWithDB snaplet = unsafeWithDB' snaplet UnconfirmedWrites
 
 ------------------------------------------------------------------------------
 -- | Database access function.
--- 1. argument: The snaplet (database) on which you want the action to be run.
--- 2. argument: AccessMode.
--- 3. argument: Action to perform.
--- Returns: The action's result; in case of failure error is called.
 --
 -- Example:
+--
 -- > unsafeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
-unsafeWithDB' :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> AccessMode -> Action IO a -> m a
+unsafeWithDB' :: (MonadIO m, MonadState app m)
+              => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
+              -> AccessMode                 -- ^ Access mode you want to use when performing the action.
+              -> Action IO a                -- ^ 'Action' you want to perform.
+              -> m a                        -- ^ The action's result; in case of failure 'error' is called.
 unsafeWithDB' snaplet mode action = do
     res <- (eitherWithDB' snaplet mode action)
-    return $ either (error . show) id res
+    either (error . show) return res
 
 ------------------------------------------------------------------------------
 -- | Database access function.
--- 1. argument: The snaplet (database) on which you want the action to be run.
--- 2. argument: Action to perform. (Defaults to UnconfirmedWrites AccessMode)
--- Returns: Nothing in case of failure or Just the rsult of the action.
 --
 -- Example:
+--
 -- > maybeWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
-maybeWithDB :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> Action IO a -> m (Maybe a)
+maybeWithDB :: (MonadIO m, MonadState app m)
+            => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
+            -> Action IO a                -- ^ 'Action' you want to perform.
+            -> m (Maybe a)                -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
 maybeWithDB snaplet = maybeWithDB' snaplet UnconfirmedWrites
 
 ------------------------------------------------------------------------------
 -- | Database access function.
--- 1. argument: The snaplet (database) on which you want the action to be run.
--- 2. argument: AccessMode.
--- 3. argument: Action to perform.
--- Returns: Nothing in case of failure or Just the rsult of the action.
 --
 -- Example:
+--
 -- > maybeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
-maybeWithDB' :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> AccessMode -> Action IO a -> m (Maybe a)
+maybeWithDB' :: (MonadIO m, MonadState app m)
+             => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
+             -> AccessMode                 -- ^ Access mode you want to use when performing the action.
+             -> Action IO a                -- ^ 'Action' you want to perform.
+             -> m (Maybe a)                -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
 maybeWithDB' snaplet mode action = do
     res <- (eitherWithDB' snaplet mode action)
     return $ either (const Nothing) Just res
 
 ------------------------------------------------------------------------------
 -- | Database access function.
--- 1. argument: The snaplet (database) on which you want the action to be run.
--- 2. argument: Action to perform. (Defaults to UnconfirmedWrites AccessMode)
--- Returns: Either Failure or the action's result.
 --
 -- Example:
+--
 -- > eitherWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
-eitherWithDB :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> Action IO a -> m (Either Failure a)
+eitherWithDB :: (MonadIO m, MonadState app m)
+             => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
+             -> Action IO a                -- ^ 'Action' you want to perform.
+             -> m (Either Failure a)       -- ^ 'Either' 'Failure' or the action's result.
 eitherWithDB snaplet = eitherWithDB' snaplet UnconfirmedWrites
 
 ------------------------------------------------------------------------------
 -- | Database access function.
--- 1. argument: The snaplet (database) on which you want the action to be run.
--- 2. argument: AccessMode.
--- 3. argument: Action to perform.
--- Returns: Either Failure or the action's result.
 --
 -- Example:
+--
 -- > eitherWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
-eitherWithDB' :: (MonadState' app m) => Lens app (Snaplet MongoDB) -> AccessMode -> Action IO a -> m (Either Failure a)
+eitherWithDB' :: (MonadIO m, MonadState app m)
+              => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
+              -> AccessMode                 -- ^ Access mode you want to use when performing the action.
+              -> Action IO a                -- ^ 'Action' you want to perform.
+              -> m (Either Failure a)       -- ^ 'Either' 'Failure' or the action's result.
 eitherWithDB' snaplet mode action = do
-    (MongoDB pool database) <- gets (getL ((C..) snapletValue snaplet))
+    (MongoDB pool database _) <- gets (getL ((C..) snapletValue snaplet))
     ep <- liftIO $ runErrorT $ aResource pool
     case ep of
          Left  err -> return $ Left $ ConnectionFailure err
