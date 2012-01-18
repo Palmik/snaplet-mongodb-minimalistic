@@ -1,0 +1,54 @@
+name:           snaplet-mongodb-minimalistic-example1
+version:        0.0.1
+synopsis:       Simple Example.
+description:    Simple Example.
+license:        BSD3
+license-file:   LICENSE
+author:         Petr Pilař
+maintainer:     jondoe@example.com
+build-type:     Simple
+cabal-version:  >= 1.6
+homepage:       example.com
+category:       Web
+
+Flag development
+  Description: Whether to build the server in development (interpreted) mode
+  Default: False
+
+Executable snaplet-mongodb-minimalistic-example1
+  hs-source-dirs: src
+  main-is: Main.hs
+
+  Build-depends:
+    base                            >= 4 && < 5,
+    bytestring                      >= 0.9.1 && < 0.10,
+    data-lens                       >= 2.0.1 && < 2.1,
+    data-lens-template              >= 2.1 && < 2.2,
+    heist                           >= 0.7 && < 0.8,
+    mtl                             >= 2 && < 3,
+    snap                            == 0.7.*,
+    snap-core                       == 0.7.*,
+    snap-server                     == 0.7.*,
+    text                            >= 0.11 && < 0.12,
+    xmlhtml                         == 0.1.*,
+    snaplet-mongodb-minimalistic,
+    mongoDB,
+    utf8-string
+
+  if flag(development)
+    cpp-options: -DDEVELOPMENT
+    -- In development mode, speed is already going to suffer, so skip
+    -- the fancy optimization flags.  Additionally, disable all
+    -- warnings.  The hint library doesn't give an option to execute
+    -- compiled code when there were also warnings, so disabling
+    -- warnings allows quicker workflow.
+    ghc-options: -threaded -w
+  else
+    if impl(ghc >= 6.12.0)
+      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                   -fno-warn-orphans -fno-warn-unused-do-bind
+    else
+      ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                   -fno-warn-orphans
+
+
