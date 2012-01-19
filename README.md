@@ -4,7 +4,7 @@
 
 The package follows the [Snaplet Design](http://snapframework.com/docs/tutorials/snaplets-design).
 
-The package itself is divided into two parts:
+The package itself is divided into two main parts:
 
   1. `Snap.Snaplet.MongoDB.Core`
   2. `Snap.Snaplet.MongoDB.Functions`
@@ -12,8 +12,8 @@ The package itself is divided into two parts:
     2. `Snap.Snaplet.MongoDB.Functions.M`
 
 For details check-out the [documentation](http://palmik.github.com/snaplet-mongodb-minimalistic/)
-(alternatively on [hackage](http://hackage.haskell.org/package/snaplet-mongodb-minimalistic) -- not neccessary up to date).
+(alternatively on [hackage](http://hackage.haskell.org/package/snaplet-mongodb-minimalistic) -- not necessarily up to date).
 
 # Examples
 
-Check out the examples subdirectory.
+For examples, check out the examples subdirectory.
