@@ -31,7 +31,7 @@ import           System.IO.Pool
 unsafeWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
              => Action IO a         -- ^ 'Action' you want to perform.
              -> m a                 -- ^ The action's result; in case of failure 'error' is called.
-unsafeWithDB = unsafeWithDB' UnconfirmedWrites
+unsafeWithDB action = getMongoAccessMode >>= flip unsafeWithDB' action
 
 ------------------------------------------------------------------------------
 -- | Database access function.
@@ -56,7 +56,7 @@ unsafeWithDB' mode action = do
 maybeWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
             => Action IO a          -- ^ 'Action' you want to perform.
             -> m (Maybe a)          -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
-maybeWithDB = maybeWithDB' UnconfirmedWrites
+maybeWithDB action = getMongoAccessMode >>= flip maybeWithDB' action
 
 ------------------------------------------------------------------------------
 -- | Database access function.
@@ -81,7 +81,7 @@ maybeWithDB' mode action = do
 eitherWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
              => Action IO a             -- ^ 'Action' you want to perform.
              -> m (Either Failure a)    -- ^ 'Either' 'Failure' or the action's result.
-eitherWithDB = eitherWithDB' UnconfirmedWrites
+eitherWithDB action = getMongoAccessMode >>= flip eitherWithDB' action
 
 ------------------------------------------------------------------------------
 -- | Database access function.
@@ -98,4 +98,8 @@ eitherWithDB' mode action = do
     ep <- liftIO $ runErrorT $ aResource pool
     case ep of
          Left  err -> return $ Left $ ConnectionFailure err
-         Right pip -> liftIO $ access pip mode database action      
+         Right pip -> liftIO $ access pip mode database action
+
+getMongoAccessMode :: (MonadIO m, MonadState app m, HasMongoDB app) => m AccessMode
+getMongoAccessMode = gets getMongoDB >>= return . mongoAccessMode
+{-# INLINE getMongoAccessMode #-}

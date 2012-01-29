@@ -6,6 +6,7 @@
 module Snap.Snaplet.MongoDB.Core
 ( MongoDB(..)
 , HasMongoDB(..)
+, MongoDBPool
 , mongoDBInit
 ) where
 
@@ -17,9 +18,15 @@ import           Database.MongoDB
 import           System.IO.Pool
 
 ------------------------------------------------------------------------------
+
+------------------------------------------------------------------------------
 -- | Description text used in mongoDBInit as makeSnaplet argument.
 description :: Text
 description = "Minimalistic MongoDB Snaplet."
+
+------------------------------------------------------------------------------
+-- | MongoDB Pool type
+type MongoDBPool = Pool IOError Pipe
 
 ------------------------------------------------------------------------------
 -- | Snaplet's data type.

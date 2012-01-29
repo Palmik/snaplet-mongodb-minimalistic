@@ -1,19 +1,23 @@
-name:           snaplet-mongodb-minimalistic
-version:        0.0.5.1
-synopsis:       Minimalistic MongoDB Snaplet.
-description:    Minimalistic MongoDB Snaplet.
-license:        BSD3
-license-file:   LICENSE
-author:         Petr Pilař
-maintainer:     the.palmik+maintainer@gmail.com
-build-type:     Simple
-cabal-version:  >= 1.6
-homepage:       https://github.com/Palmik/snaplet-mongodb-minimalistic
-category:       Web
+Name:               snaplet-mongodb-minimalistic
+Version:            0.0.6
+Synopsis:           Minimalistic MongoDB Snaplet.
+Description:        Minimalistic MongoDB Snaplet.
+License:            BSD3
+License-file:       LICENSE
+Author:             Petr Pilař
+Maintainer:         the.palmik+maintainer@gmail.com
+Build-type:         Simple
+Cabal-version:      >= 1.6
+Homepage:           https://github.com/Palmik/snaplet-mongodb-minimalistic
+Category:           Web
 
-Flag development
-  Description: Whether to build the server in development (interpreted) mode
-  Default: False
+Build-type:          Simple
+
+Cabal-version:       >= 1.6
+
+Source-repository head
+  type:     git
+  location: git://github.com/Palmik/snaplet-mongodb-minimalistic.git
 
 Library
   hs-source-dirs: src
@@ -25,6 +29,9 @@ Library
     Snap.Snaplet.MongoDB.Functions.S,
     Snap.Snaplet.MongoDB.Functions.M
 
+  Other-modules:
+    Snap.Snaplet.MongoDB.Internal
+
   Build-depends:
     base                        >= 4 && < 5,
     mtl                         >= 2 && < 3,
@@ -32,21 +39,5 @@ Library
     snap-core                   == 0.7.*,
     text                        >= 0.11 && < 0.12,
     mongoDB                     >= 1.1.1 && < 1.2.0
-
-  if flag(development)
-    cpp-options: -DDEVELOPMENT
-    -- In development mode, speed is already going to suffer, so skip
-    -- the fancy optimization flags.  Additionally, disable all
-    -- warnings.  The hint library doesn't give an option to execute
-    -- compiled code when there were also warnings, so disabling
-    -- warnings allows quicker workflow.
-    ghc-options: -w
-  else
-    if impl(ghc >= 6.12.0)
-      ghc-options: -Wall -fwarn-tabs -funbox-strict-fields
-                   -fno-warn-orphans -fno-warn-unused-do-bind
-    else
-      ghc-options: -Wall -fwarn-tabs -funbox-strict-fields
-                   -fno-warn-orphans
 
 

@@ -34,7 +34,7 @@ unsafeWithDB :: (MonadIO m, MonadState app m)
              => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
              -> Action IO a                -- ^ 'Action' you want to perform.
              -> m a                        -- ^ The action's result; in case of failure 'error' is called.
-unsafeWithDB snaplet = unsafeWithDB' snaplet UnconfirmedWrites
+unsafeWithDB snaplet action = getMongoAccessMode snaplet >>= flip (unsafeWithDB' snaplet) action
 
 ------------------------------------------------------------------------------
 -- | Database access function.
@@ -61,7 +61,7 @@ maybeWithDB :: (MonadIO m, MonadState app m)
             => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
             -> Action IO a                -- ^ 'Action' you want to perform.
             -> m (Maybe a)                -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
-maybeWithDB snaplet = maybeWithDB' snaplet UnconfirmedWrites
+maybeWithDB snaplet action = getMongoAccessMode snaplet >>= flip (maybeWithDB' snaplet) action
 
 ------------------------------------------------------------------------------
 -- | Database access function.
@@ -88,7 +88,7 @@ eitherWithDB :: (MonadIO m, MonadState app m)
              => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
              -> Action IO a                -- ^ 'Action' you want to perform.
              -> m (Either Failure a)       -- ^ 'Either' 'Failure' or the action's result.
-eitherWithDB snaplet = eitherWithDB' snaplet UnconfirmedWrites
+eitherWithDB snaplet action = getMongoAccessMode snaplet >>= flip (eitherWithDB' snaplet) action
 
 ------------------------------------------------------------------------------
 -- | Database access function.
@@ -107,5 +107,9 @@ eitherWithDB' snaplet mode action = do
     case ep of
          Left  err -> return $ Left $ ConnectionFailure err
          Right pip -> liftIO $ access pip mode database action
+
+getMongoAccessMode :: (MonadIO m, MonadState app m) => Lens app (Snaplet MongoDB) -> m AccessMode
+getMongoAccessMode snaplet = gets (getL ((C..) snapletValue snaplet)) >>= return . mongoAccessMode
+{-# INLINE getMongoAccessMode #-}
 
 
