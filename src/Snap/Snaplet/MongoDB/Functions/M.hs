@@ -14,13 +14,15 @@ module Snap.Snaplet.MongoDB.Functions.M
 , unsafeWithDB'
 ) where 
 
-import           Control.Monad.Error
+import           Control.Monad.Error (runErrorT)
 
-import           Snap
+import           Snap (MonadIO, MonadState, gets, liftIO) -- transformers, mtl
+import           Snap (Lens, getL) -- data-lens
+import           Snap (Snaplet, snapletValue)
 import           Snap.Snaplet.MongoDB.Core
 
-import           Database.MongoDB
-import           System.IO.Pool
+import           Database.MongoDB (Action, AccessMode, Failure (ConnectionFailure), access)
+import           System.IO.Pool (aResource)
 
 import qualified Control.Category as C ((.))
 
@@ -29,7 +31,7 @@ import qualified Control.Category as C ((.))
 --
 -- Example:
 --
--- > unsafeWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
+-- > unsafeWithDB accountDB $ insert "test-collection" [ "some_field" = "something" ]
 unsafeWithDB :: (MonadIO m, MonadState app m)
              => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
              -> Action IO a                -- ^ 'Action' you want to perform.
@@ -41,7 +43,7 @@ unsafeWithDB snaplet action = getMongoAccessMode snaplet >>= flip (unsafeWithDB'
 --
 -- Example:
 --
--- > unsafeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
+-- > unsafeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" [ "some_field" = "something" ]
 unsafeWithDB' :: (MonadIO m, MonadState app m)
               => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
               -> AccessMode                 -- ^ Access mode you want to use when performing the action.
@@ -56,7 +58,7 @@ unsafeWithDB' snaplet mode action = do
 --
 -- Example:
 --
--- > maybeWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
+-- > maybeWithDB accountDB $ insert "test-collection" [ "some_field" = "something" ]
 maybeWithDB :: (MonadIO m, MonadState app m)
             => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
             -> Action IO a                -- ^ 'Action' you want to perform.
@@ -68,7 +70,7 @@ maybeWithDB snaplet action = getMongoAccessMode snaplet >>= flip (maybeWithDB' s
 --
 -- Example:
 --
--- > maybeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
+-- > maybeWithDB' accountDB UnconfirmedWrites $ insert "test-collection" [ "some_field" = "something" ]
 maybeWithDB' :: (MonadIO m, MonadState app m)
              => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
              -> AccessMode                 -- ^ Access mode you want to use when performing the action.
@@ -83,7 +85,7 @@ maybeWithDB' snaplet mode action = do
 --
 -- Example:
 --
--- > eitherWithDB accountDB $ insert "test-collection" ["some_field" = "something" ]
+-- > eitherWithDB accountDB $ insert "test-collection" [ "some_field" = "something" ]
 eitherWithDB :: (MonadIO m, MonadState app m)
              => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
              -> Action IO a                -- ^ 'Action' you want to perform.
@@ -95,7 +97,7 @@ eitherWithDB snaplet action = getMongoAccessMode snaplet >>= flip (eitherWithDB'
 --
 -- Example:
 --
--- > eitherWithDB' accountDB UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
+-- > eitherWithDB' accountDB UnconfirmedWrites $ insert "test-collection" [ "some_field" = "something" ]
 eitherWithDB' :: (MonadIO m, MonadState app m)
               => Lens app (Snaplet MongoDB) -- ^ The snaplet (database) on which you want the action to be run.
               -> AccessMode                 -- ^ Access mode you want to use when performing the action.

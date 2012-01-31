@@ -12,10 +12,10 @@ module Snap.Snaplet.MongoDB.Core
 
 import           Data.Text (Text)
 
-import           Snap
+import           Snap (SnapletInit, liftIO, makeSnaplet)
 
-import           Database.MongoDB
-import           System.IO.Pool
+import           Database.MongoDB (Database, Host, Pipe, AccessMode (UnconfirmedWrites), close, isClosed, connect)
+import           System.IO.Pool (Pool, Factory (Factory), newPool)
 
 ------------------------------------------------------------------------------
 
@@ -47,7 +47,6 @@ data MongoDB = MongoDB
 -- | Snaplet's type-class.
 --
 -- Usage:
---
 --
 -- > instance HasMongoDB App where
 -- >     getMongoDB = getL (snapletValue . database)

@@ -14,20 +14,22 @@ module Snap.Snaplet.MongoDB.Functions.S
 , unsafeWithDB'
 ) where
 
-import           Control.Monad.Error
+import           Control.Monad.Error (runErrorT)
 
-import           Snap
+import           Snap (MonadIO, MonadState, gets, liftIO) -- transformers, mtl
+import           Snap (Lens, getL) -- data-lens
+import           Snap (Snaplet, snapletValue)
 import           Snap.Snaplet.MongoDB.Core
 
-import           Database.MongoDB
-import           System.IO.Pool
+import           Database.MongoDB (Action, AccessMode, Failure (ConnectionFailure), access)
+import           System.IO.Pool (aResource)
 
 ------------------------------------------------------------------------------
 -- | Database access function.
 --
 -- Usage:
 --
--- > unsafeWithDB $ insert "test-collection" ["some_field" = "something" ]
+-- > unsafeWithDB $ insert "test-collection" [ "some_field" = "something" ]
 unsafeWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
              => Action IO a         -- ^ 'Action' you want to perform.
              -> m a                 -- ^ The action's result; in case of failure 'error' is called.
@@ -38,7 +40,7 @@ unsafeWithDB action = getMongoAccessMode >>= flip unsafeWithDB' action
 --
 -- Usage:
 --
--- > unsafeWithDB' UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
+-- > unsafeWithDB' UnconfirmedWrites $ insert "test-collection" [ "some_field" = "something" ]
 unsafeWithDB' :: (MonadIO m, MonadState app m, HasMongoDB app)
               => AccessMode             -- ^ Access mode you want to use when performing the action.
               -> Action IO a            -- ^ 'Action' you want to perform.
@@ -52,7 +54,7 @@ unsafeWithDB' mode action = do
 --
 -- Usage:
 --
--- > maybeWithDB $ insert "test-collection" ["some_field" = "something" ]
+-- > maybeWithDB $ insert "test-collection" [ "some_field" = "something" ]
 maybeWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
             => Action IO a          -- ^ 'Action' you want to perform.
             -> m (Maybe a)          -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
@@ -63,7 +65,7 @@ maybeWithDB action = getMongoAccessMode >>= flip maybeWithDB' action
 --
 -- Usage:
 --
--- > maybeWithDB' UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
+-- > maybeWithDB' UnconfirmedWrites $ insert "test-collection" [ "some_field" = "something" ]
 maybeWithDB' :: (MonadIO m, MonadState app m, HasMongoDB app)
              => AccessMode          -- ^ Access mode you want to use when performing the action.
              -> Action IO a         -- ^ 'Action' you want to perform.
@@ -77,7 +79,7 @@ maybeWithDB' mode action = do
 --
 -- Usage:
 --
--- > eitherWithDB $ insert "test-collection" ["some_field" = "something" ]
+-- > eitherWithDB $ insert "test-collection" [ "some_field" = "something" ]
 eitherWithDB :: (MonadIO m, MonadState app m, HasMongoDB app)
              => Action IO a             -- ^ 'Action' you want to perform.
              -> m (Either Failure a)    -- ^ 'Either' 'Failure' or the action's result.
@@ -88,7 +90,7 @@ eitherWithDB action = getMongoAccessMode >>= flip eitherWithDB' action
 --
 -- Usage:
 --
--- > eitherWithDB' UnconfirmedWrites $ insert "test-collection" ["some_field" = "something" ]
+-- > eitherWithDB' UnconfirmedWrites $ insert "test-collection" [ "some_field" = "something" ]
 eitherWithDB' :: (MonadIO m, MonadState app m, HasMongoDB app)
               => AccessMode             -- ^ Access mode you want to use when performing the action.
               -> Action IO a            -- ^ 'Action' you want to perform.
