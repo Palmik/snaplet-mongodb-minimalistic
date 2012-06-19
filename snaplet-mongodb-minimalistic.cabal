@@ -1,5 +1,5 @@
 Name:               snaplet-mongodb-minimalistic
-Version:            0.0.6.3
+Version:            0.0.6.4
 Synopsis:           Minimalistic MongoDB Snaplet.
 Description:        Minimalistic MongoDB Snaplet.
 License:            BSD3
@@ -34,8 +34,8 @@ Library
   Build-depends:
     base                        == 4.*,
     mtl                         == 2.*,
-    snap                        == 0.8.*,
-    snap-core                   == 0.8.*,
+    snap                        == 0.9.*,
+    snap-core                   == 0.9.*,
     text                        == 0.11.*,
     mongoDB                     == 1.2.*
 
