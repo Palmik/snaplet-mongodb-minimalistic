@@ -44,12 +44,12 @@ routes :: [(ByteString, Handler App App ())]
 routes = [ ("/", method POST indexHandler)
          , ("/",             indexView)
          , ("",  with heist heistServe)
-         , ("",  serveDirectory "resources/static")
+         , ("",  serveDirectory "static")
          ]
 
 app :: SnapletInit App App
 app = makeSnaplet "app" "An snaplet example application." Nothing $ do
-    h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
+    h <- nestSnaplet "heist" heist $ heistInit "templates"
     d <- nestSnaplet "database" database $ mongoDBInit 10 (host "127.0.0.1") "Snaplet-MongoDB"
     addRoutes routes
     return $ App h d
