@@ -17,7 +17,6 @@ module Snap.Snaplet.MongoDB.Functions.S
 import           Control.Monad.Error (runErrorT)
 
 import           Snap (MonadIO, MonadState, gets, liftIO) -- transformers, mtl
-import           Snap (Lens, getL) -- data-lens
 import           Snap (Snaplet, snapletValue)
 import           Snap.Snaplet.MongoDB.Core
 
