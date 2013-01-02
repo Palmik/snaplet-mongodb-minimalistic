@@ -14,6 +14,7 @@ module Snap.Snaplet.MongoDB.Functions.M
 , unsafeWithDB'
 ) where 
 
+import           Control.Monad (liftM)
 import           Control.Monad.Error (runErrorT)
 import           Control.Lens (cloneLens, use)
 
@@ -49,7 +50,7 @@ unsafeWithDB' :: (MonadIO m, MonadState app m)
               -> Action IO a             -- ^ 'Action' you want to perform.
               -> m a                     -- ^ The action's result; in case of failure 'error' is called.
 unsafeWithDB' snaplet mode action = do
-    res <- (eitherWithDB' snaplet mode action)
+    res <- eitherWithDB' snaplet mode action
     either (error . show) return res
 
 ------------------------------------------------------------------------------
@@ -76,7 +77,7 @@ maybeWithDB' :: (MonadIO m, MonadState app m)
              -> Action IO a             -- ^ 'Action' you want to perform.
              -> m (Maybe a)             -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
 maybeWithDB' snaplet mode action = do
-    res <- (eitherWithDB' snaplet mode action)
+    res <- eitherWithDB' snaplet mode action
     return $ either (const Nothing) Just res
 
 ------------------------------------------------------------------------------
@@ -103,15 +104,12 @@ eitherWithDB' :: (MonadIO m, MonadState app m)
               -> Action IO a             -- ^ 'Action' you want to perform.
               -> m (Either Failure a)    -- ^ 'Either' 'Failure' or the action's result.
 eitherWithDB' snaplet mode action = do
-    (MongoDB pool database _) <- use (snaplet'.snapletValue)
+    (MongoDB pool database _) <- use (cloneLens snaplet . snapletValue)
     ep <- liftIO $ runErrorT $ aResource pool
     case ep of
          Left  err -> return $ Left $ ConnectionFailure err
          Right pip -> liftIO $ access pip mode database action
-  where
-    snaplet' = cloneLens snaplet
 
 getMongoAccessMode :: (MonadIO m, MonadState app m) => SnapletLens app MongoDB -> m AccessMode
-getMongoAccessMode snaplet = use (snaplet'.snapletValue) >>= return . mongoAccessMode
-  where snaplet' = cloneLens snaplet
+getMongoAccessMode snaplet = mongoAccessMode `liftM` use (cloneLens snaplet . snapletValue)
 {-# INLINE getMongoAccessMode #-}
