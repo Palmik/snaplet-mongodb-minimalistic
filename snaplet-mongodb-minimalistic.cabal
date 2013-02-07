@@ -35,7 +35,7 @@ Library
     base                        == 4.*,
     lens                        == 3.7.*,
     mtl                         == 2.*,
-    snap                        >= 0.10 && < 0.11,
+    snap                        >= 0.11 && < 0.12,
     snap-core                   == 0.9.*,
     text                        == 0.11.*,
     mongoDB                     == 1.3.*
