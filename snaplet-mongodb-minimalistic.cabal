@@ -33,7 +33,7 @@ Library
 
   Build-depends:
     base                        == 4.*,
-    lens                        == 3.7.*,
+    lens                        >= 3.7 && < 3.9,
     mtl                         == 2.*,
     snap                        >= 0.10 && < 0.12,
     snap-core                   == 0.9.*,
