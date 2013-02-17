@@ -10,10 +10,10 @@ module Snap.Snaplet.MongoDB.Core
 , mongoDBInit
 ) where
 
+import           Control.Lens
 import           Data.Text (Text)
-
-import           Snap (SnapletInit, liftIO, makeSnaplet)
-
+import           Snap.Snaplet
+import           Control.Monad.IO.Class
 import           Database.MongoDB (Database, Host, Pipe, AccessMode (UnconfirmedWrites), close, isClosed, connect)
 import           System.IO.Pool (Pool, Factory (Factory), newPool)
 
@@ -52,8 +52,8 @@ data MongoDB = MongoDB
 -- >     getMongoDB = getL (snapletValue . database)
 --
 -- Note: The @(.)@ is from 'Control.Category'.
-class HasMongoDB app where
-    getMongoDB :: app -> MongoDB
+class HasMongoDB a where
+    getMongoDB :: a -> MongoDB
 
 ------------------------------------------------------------------------------
 -- | Initializer function.
