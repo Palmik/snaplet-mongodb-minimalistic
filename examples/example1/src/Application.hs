@@ -23,5 +23,5 @@ instance HasHeist App where
 
 -- This is ugly, how to beautify it?
 instance HasMongoDB App where
-    getMongoDB app = view snapletValue (view (database) app)
+    getMongoDB app = view snapletValue (view database app)
 
