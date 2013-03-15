@@ -4,15 +4,10 @@
 
 module Application where
 
-import Data.Lens.Template
-import Data.Lens.Common
-
+import Control.Lens
 import Snap.Snaplet
 import Snap.Snaplet.Heist
 import Snap.Snaplet.MongoDB.Core
-
-import Control.Category ((.))
-import Prelude hiding ((.))
 
 data App = App
     { _heist :: Snaplet (Heist App)
@@ -21,11 +16,12 @@ data App = App
 
 type AppHandler = Handler App App
 
-makeLens ''App
+makeLenses ''App
 
 instance HasHeist App where
     heistLens = subSnaplet heist
 
+-- This is ugly, how to beautify it?
 instance HasMongoDB App where
-    getMongoDB = getL (snapletValue . database)
+    getMongoDB app = view snapletValue (view database app)
 
