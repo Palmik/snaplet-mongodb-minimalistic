@@ -15,9 +15,7 @@ module Snap.Snaplet.MongoDB.Functions.S
 ) where
 
 import           Control.Monad.Error (runErrorT)
-import           Control.Lens hiding (Action)
 import           Snap
-import           Snap.Snaplet
 import           Snap.Snaplet.MongoDB.Core
 
 import           Database.MongoDB (Action, AccessMode, Failure (ConnectionFailure), access)
@@ -45,7 +43,7 @@ unsafeWithDB' :: (MonadIO m, MonadState app m, HasMongoDB app)
               -> Action IO a            -- ^ 'Action' you want to perform.
               -> m a                    -- ^ The action's result; in case of failure 'error' is called.
 unsafeWithDB' mode action = do
-    res <- (eitherWithDB' mode action)
+    res <- eitherWithDB' mode action
     either (error . show) return res
 
 ------------------------------------------------------------------------------
@@ -70,7 +68,7 @@ maybeWithDB' :: (MonadIO m, MonadState app m, HasMongoDB app)
              -> Action IO a         -- ^ 'Action' you want to perform.
              -> m (Maybe a)         -- ^ 'Nothing' in case of failure or 'Just' the result of the action.
 maybeWithDB' mode action = do
-    res <- (eitherWithDB' mode action)
+    res <- eitherWithDB' mode action
     return $ either (const Nothing) Just res
 
 ------------------------------------------------------------------------------
@@ -102,5 +100,5 @@ eitherWithDB' mode action = do
          Right pip -> liftIO $ access pip mode database action
 
 getMongoAccessMode :: (MonadIO m, MonadState app m, HasMongoDB app) => m AccessMode
-getMongoAccessMode = gets getMongoDB >>= return . mongoAccessMode
+getMongoAccessMode = mongoAccessMode `liftM` gets getMongoDB
 {-# INLINE getMongoAccessMode #-}

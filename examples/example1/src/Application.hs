@@ -21,7 +21,6 @@ makeLenses ''App
 instance HasHeist App where
     heistLens = subSnaplet heist
 
--- This is ugly, how to beautify it?
 instance HasMongoDB App where
     getMongoDB app = view snapletValue (view database app)
 

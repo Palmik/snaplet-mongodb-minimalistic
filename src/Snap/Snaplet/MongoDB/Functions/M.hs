@@ -18,9 +18,7 @@ import           Control.Monad (liftM)
 import           Control.Monad.Error (runErrorT)
 import           Control.Lens (cloneLens, use)
 
-import           Snap (MonadIO, MonadState, gets, liftIO) -- transformers, mtl
-import           Snap (SnapletLens)
-import           Snap (Snaplet, snapletValue)
+import           Snap (MonadIO, MonadState, liftIO, SnapletLens, snapletValue)
 import           Snap.Snaplet.MongoDB.Core
 
 import           Database.MongoDB (Action, AccessMode, Failure (ConnectionFailure), access)

@@ -4,22 +4,21 @@ module Site
 ( app
 ) where
 
-import           Data.ByteString (ByteString)
-import           Data.ByteString.UTF8 (toString)
+import Data.ByteString (ByteString)
+import Data.ByteString.UTF8 (toString)
 
-import           Snap.Core
-import           Snap.Util.FileServe
+import Snap.Core
+import Snap.Util.FileServe
 
-import           Snap.Snaplet
-import           Snap.Snaplet.Heist
-import           Snap.Snaplet.MongoDB
+import Snap.Snaplet
+import Snap.Snaplet.Heist
+import Snap.Snaplet.MongoDB
 
-import           Text.Templating.Heist
-import           Text.XmlHtml hiding (render)
+import Heist.Interpreted
 
-import           Application
+import Application
 
-import           Example.Foo
+import Example.Foo
 
 
 indexView :: Handler App App ()

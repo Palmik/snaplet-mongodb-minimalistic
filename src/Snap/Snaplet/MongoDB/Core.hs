@@ -8,9 +8,9 @@ module Snap.Snaplet.MongoDB.Core
 , HasMongoDB(..)
 , MongoDBPool
 , mongoDBInit
+, mongoDBInit'
 ) where
 
-import           Control.Lens
 import           Data.Text (Text)
 import           Snap.Snaplet
 import           Control.Monad.IO.Class
