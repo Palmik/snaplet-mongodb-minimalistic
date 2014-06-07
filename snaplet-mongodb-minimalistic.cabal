@@ -1,5 +1,5 @@
 Name:               snaplet-mongodb-minimalistic
-Version:            0.0.6.11
+Version:            0.0.6.12
 Synopsis:           Minimalistic MongoDB Snaplet.
 Description:        Minimalistic MongoDB Snaplet.
 License:            BSD3
@@ -13,7 +13,7 @@ Category:           Web
 
 Build-type:          Simple
 
-Cabal-version:       >= 1.6
+Cabal-version:       >= 1.10
 
 Source-repository head
   type:     git
@@ -21,6 +21,7 @@ Source-repository head
 
 Library
   hs-source-dirs: src
+  default-language:    Haskell2010
 
   Exposed-modules:
     Snap.Snaplet.MongoDB,
@@ -36,8 +37,8 @@ Library
     lens                        >= 3.7 && < 3.11,
     mtl                         >= 2.0 && < 2.2,
     transformers                >= 0.2 && < 0.4,
-    snap                        >= 0.11 && < 0.13,
-    text                        >= 0.11 && < 0.12,
+    snap                        >= 0.11 && < 0.14,
+    text                        >= 0.11 && < 1.2,
     mongoDB                     >= 1.4 && < 1.5
 
   GHC-Options: -Wall
