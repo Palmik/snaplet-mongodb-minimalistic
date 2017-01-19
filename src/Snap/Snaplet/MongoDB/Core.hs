@@ -14,8 +14,8 @@ module Snap.Snaplet.MongoDB.Core
 import           Data.Text (Text)
 import           Snap.Snaplet
 import           Control.Monad.IO.Class
-import           Database.MongoDB (Database, Host, Pipe, AccessMode (UnconfirmedWrites), close, isClosed, connect)
-import           System.IO.Pool (Pool, Factory (Factory), newPool)
+import           Database.MongoDB (Database, Host, Pipe, AccessMode (UnconfirmedWrites), close, connect)
+import           Data.Pool (Pool, createPool)
 
 ------------------------------------------------------------------------------
 
@@ -26,23 +26,23 @@ description = "Minimalistic MongoDB Snaplet."
 
 ------------------------------------------------------------------------------
 -- | MongoDB Pool type
-type MongoDBPool = Pool IOError Pipe
+type MongoDBPool = Pool Pipe
 
 ------------------------------------------------------------------------------
 -- | Snaplet's data type.
 --
 -- Usage:
--- 
+--
 -- > data App = App
 -- >     { _heist :: Snaplet (Heist App)
 -- >     , _database :: Snaplet MongoDB
 -- >     }
 data MongoDB = MongoDB
-    { mongoPool :: Pool IOError Pipe
+    { mongoPool :: Pool Pipe
     , mongoDatabase :: Database
     , mongoAccessMode :: AccessMode
     }
-    
+
 ------------------------------------------------------------------------------
 -- | Snaplet's type-class.
 --
@@ -67,9 +67,10 @@ mongoDBInit :: Int                      -- ^ Maximum pool size.
             -> Host                     -- ^ Host (e.g. return value of MongoDB's host function).
             -> Database                 -- ^ Database name.
             -> SnapletInit app MongoDB
-mongoDBInit n h d = makeSnaplet "snaplet-mongodb" description Nothing $ do
-    pool <- liftIO $ newPool (Factory (connect h) close isClosed) n
-    return $ MongoDB pool d UnconfirmedWrites
+mongoDBInit poolSize host database =
+  makeSnaplet "snaplet-mongodb" description Nothing $ do
+    pool <- liftIO $ createPool (connect host) close poolSize 0.5 1
+    return $ MongoDB pool database UnconfirmedWrites
 
 ------------------------------------------------------------------------------
 -- | Initializer function.
@@ -87,6 +88,6 @@ mongoDBInit' :: Int                      -- ^ Maximum pool size.
              -> AccessMode               -- ^ Default access mode to be used with this snaplet.
              -> SnapletInit app MongoDB
 mongoDBInit' n h d m = makeSnaplet "snaplet-mongodb" description Nothing $ do
-    pool <- liftIO $ newPool (Factory (connect h) close isClosed) n
+    pool <- liftIO $ createPool (connect h) close n 50 3 -- TODO I'm not so sure about this numbers
     return $ MongoDB pool d m
-    
+
