@@ -14,7 +14,7 @@ module Snap.Snaplet.MongoDB.Core
 import           Data.Text (Text)
 import           Snap.Snaplet
 import           Control.Monad.IO.Class
-import           Database.MongoDB (Database, Host, Pipe, AccessMode (UnconfirmedWrites), close, connect)
+import           Database.MongoDB (Database, Host, Pipe, AccessMode (..), close, connect)
 import           Data.Pool (Pool, createPool)
 
 ------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ mongoDBInit :: Int                      -- ^ Maximum pool size.
 mongoDBInit poolSize host database =
   makeSnaplet "snaplet-mongodb" description Nothing $ do
     pool <- liftIO $ createPool (connect host) close poolSize 0.5 1
-    return $ MongoDB pool database UnconfirmedWrites
+    return $ MongoDB pool database (ConfirmWrites [])
 
 ------------------------------------------------------------------------------
 -- | Initializer function.
