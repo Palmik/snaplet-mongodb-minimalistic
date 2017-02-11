@@ -12,17 +12,17 @@ module Snap.Snaplet.MongoDB.Functions.M
 , maybeWithDB'
 , unsafeWithDB
 , unsafeWithDB'
-) where 
+) where
 
-import           Control.Monad (liftM)
-import           Control.Monad.Error (runErrorT)
+import           Control.Exception (try)
 import           Control.Lens (cloneLens, use)
+import           Control.Monad.State
 
-import           Snap (MonadIO, MonadState, liftIO, SnapletLens, snapletValue)
+import           Snap (SnapletLens, snapletValue)
 import           Snap.Snaplet.MongoDB.Core
 
-import           Database.MongoDB (Action, AccessMode, Failure (ConnectionFailure), access)
-import           System.IO.Pool (aResource)
+import           Database.MongoDB (Action, AccessMode, Failure (), access)
+import qualified Data.Pool as Pool
 
 ------------------------------------------------------------------------------
 -- | Database access function.
@@ -103,10 +103,8 @@ eitherWithDB' :: (MonadIO m, MonadState app m)
               -> m (Either Failure a)    -- ^ 'Either' 'Failure' or the action's result.
 eitherWithDB' snaplet mode action = do
     (MongoDB pool database _) <- use (cloneLens snaplet . snapletValue)
-    ep <- liftIO $ runErrorT $ aResource pool
-    case ep of
-         Left  err -> return $ Left $ ConnectionFailure err
-         Right pip -> liftIO $ access pip mode database action
+    liftIO $ Pool.withResource pool $ \pip -> do
+      try $ access pip mode database action
 
 getMongoAccessMode :: (MonadIO m, MonadState app m) => SnapletLens app MongoDB -> m AccessMode
 getMongoAccessMode snaplet = mongoAccessMode `liftM` use (cloneLens snaplet . snapletValue)
